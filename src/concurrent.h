@@ -27,4 +27,5 @@ SOFTWARE.
 namespace concurrent
 {
     #include "lock_free_mutex.h"
+    #include "thenable_future.h"
 }

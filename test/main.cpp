@@ -28,6 +28,7 @@ SOFTWARE.
 #include <functional>
 
 #include "test_lock_free_mutex.h"
+#include "test_thenable_future.h"
 
 
 struct test
@@ -58,6 +59,12 @@ test_group test_groups[] =
     {
         test(L"sync(complete)", test_lock_free_mutex::test_sync_complete),
         test(L"sync(throw)", test_lock_free_mutex::test_sync_throw),
+    }),
+    test_group(L"thenable_future",
+    {
+        test(L"constructor", test_thenable_future::test_constructor),
+        test(L"start", test_thenable_future::test_start),
+        test(L"then", test_thenable_future::test_then),
     }),
 };
 
