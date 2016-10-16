@@ -27,77 +27,28 @@ SOFTWARE.
 #include <functional>
 #include <future>
 
-
-template <class Value>
-class thenable_future
-    : public std::shared_future<Value>
+template <template <class> class Future, class Value>
+class _base_thenable_future
+    : public Future<Value>
 {
 public:
-    thenable_future(std::future<Value> other)
-        : std::shared_future<Value>(std::move(other))
+    _base_thenable_future(std::future<Value> other)
+        : Future<Value>(std::move(other))
     {
     }
 
-    thenable_future(const std::shared_future<Value> other)
-        : std::shared_future<Value>(other)
+    _base_thenable_future(const std::shared_future<Value> other)
+        : Future<Value>(other)
     {
     }
 
-    thenable_future(const thenable_future<Value>& other)
-        : std::shared_future<Value>(other)
+    _base_thenable_future(const _base_thenable_future<Future, Value>& other)
+        : Future<Value>(other)
     {
     }
 
-    thenable_future(thenable_future<Value>&& other) noexcept
-        : std::shared_future<Value>(other)
-    {
-    }
-
-    template <class Function, class... Args>
-    static thenable_future<std::result_of_t<Function(Args...)>> start(Function&& function, Args&&... args)
-    {
-        return 
-            std::move(
-                thenable_future<std::result_of_t<Function(Args...)>>(
-                     std::async(std::launch::async, function, args...)));
-    }
-
-    template <class Function, class... Args> 
-    thenable_future<std::result_of_t<Function(std::shared_future<Value>&, Args...)>> then(Function&& function, Args&&... args)
-    {
-        return 
-            std::move(
-                start(
-                    [this, &function, &args...]() -> std::result_of_t<Function(std::shared_future<Value>&, Args...)>
-                    {
-                        wait();
-                        return function(*this, args...);
-                    }));
-    }
-};
-
-#ifdef DO_NOT_COMPILE
-template<template<class> class Future, class Value>
-class _base_thenable_future : public Future<Value>
-{
-public:
-    _base_thenable_future(std::future<Value>&& other)
-        : future(other)
-    {
-    }
-
-    _base_thenable_future(const std::shared_future<Value>& other)
-        : future(other)
-    {
-    }
-
-    _base_thenable_future(_base_thenable_future<std::future, Value>&& other)
-        : future(other.future)
-    {
-    }
-
-    _base_thenable_future(const _base_thenable_future<std::shared_future, Value>& other)
-        : future(other.future)
+    _base_thenable_future(_base_thenable_future<Future, Value>&& other) noexcept
+        : Future<Value>(std::move(other))
     {
     }
 
@@ -106,30 +57,30 @@ public:
     {
         return 
             std::move(
+                // Wrap the std::future returned by std::async into a _base_thenable_future.
                 _base_thenable_future<Future, std::result_of_t<Function(Args...)>>(
                      std::async(std::launch::async, function, args...)));
     }
 
     template <class Function, class... Args> 
-    _base_thenable_future<Future, std::result_of_t<Function(std::shared_future<Value>&, Args&&...)>> then(Function&& function, Args&&... args)
+    _base_thenable_future<Future, std::result_of_t<Function(_base_thenable_future<Future, Value>&&, Args...)>> then(Function&& function, Args&&... args)
     {
         return 
-            //std::move(
+            std::move(
                 start(
-                    [=this, &function, &args...]() -> std::result_of_t<Function(std::shared_future<Value>&, Args&&...)>
+                    [this, &function, &args...]() -> std::result_of_t<Function(_base_thenable_future<Future, Value>&&, Args...)>
                     {
-                        future.wait();
-                        return function(std::shared_future<Value>(this->future), args...);
-                    });
-    }
+                        // Wait for this future to complete.
+                        wait();
 
-private:
-    Future<Value> future;
+                        // "Move" this instance to the continuation.
+                        return function(std::move(*this), args...);
+                    }));
+    }
 };
 
-template<class Value>
+template <class Value>
 using thenable_future = _base_thenable_future<std::future, Value>; 
 
-template<class Value>
-using shared_thenable_future = _base_thenable_future<std::shared_future, Value>; 
-#endif
+template <class Value>
+using thenable_shared_future = _base_thenable_future<std::shared_future, Value>; 

@@ -29,42 +29,40 @@ SOFTWARE.
 #include "../src/concurrent.h"
 #include "test_common.h"
 
-class test_thenable_future
+template <template <class> class ThenableFuture>
+class test_any_thenable_future
 {
 public:
     static bool test_constructor()
     {
-        concurrent::thenable_future<int> tf1 = std::async(std::launch::async, []() -> int { return 42; });
-        int actual_value = tf1.get();
+        ThenableFuture<int> future = std::async(std::launch::async, []() -> int { return 42; });
+        int actual_value = future.get();
         test_are_equal(actual_value, 42);
         return true;
     }
 
     static bool test_start()
     {
-        concurrent::thenable_future<int> tf1 = concurrent::thenable_future<int>::start([]() -> int { return 42; });
-        int actual_value = tf1.get();
+        ThenableFuture<int> future = ThenableFuture<int>::start([]() -> int { return 42; });
+        int actual_value = future.get();
         test_are_equal(actual_value, 42);
         return true;
     }
 
     static bool test_then()
     {
-        concurrent::thenable_future<long> future = 
-            concurrent::thenable_future<short>::start([]() -> short { return (short)42; })
-                .then([](std::shared_future<short>& future) -> int { return (int)(future.get() + 1); })
-                .then([](std::shared_future<int>& future) -> unsigned { return (unsigned)(future.get() + 1); })
-                .then([](std::shared_future<unsigned>& future) -> long { return (long)(future.get() + 1); });
+        ThenableFuture<long> future = 
+            ThenableFuture<short>::start([]() -> short { return (short)42; })
+                .then([](ThenableFuture<short>&& antecedent) -> int { return (int)(antecedent.get() + 1); })
+                .then([](ThenableFuture<int>&& antecedent) -> unsigned { return (unsigned)(antecedent.get() + 1); })
+                .then([](ThenableFuture<unsigned>&& antecedent) -> long { return (long)(antecedent.get() + 1); });
 
         long actual_value = future.get();
         test_are_equal(actual_value, 45);
         return true;
     }
-
-    static bool test_shared_start_then()
-    {
-        return true;
-    }
-
-private:
 };
+
+typedef test_any_thenable_future<concurrent::thenable_future> test_thenable_future;
+
+typedef test_any_thenable_future<concurrent::thenable_shared_future> test_thenable_shared_future;

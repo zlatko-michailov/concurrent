@@ -66,6 +66,12 @@ test_group test_groups[] =
         test(L"start", test_thenable_future::test_start),
         test(L"then", test_thenable_future::test_then),
     }),
+    test_group(L"thenable_shared_future",
+    {
+        test(L"constructor", test_thenable_shared_future::test_constructor),
+        test(L"start", test_thenable_shared_future::test_start),
+        test(L"then", test_thenable_shared_future::test_then),
+    }),
 };
 
 int wmain()
