@@ -36,8 +36,8 @@ public:
         sync_flag.clear();
     }
 
-    template <class TFunction, class... TArgs>
-    std::result_of_t<TFunction(TArgs...)> sync(TFunction&& function, TArgs&&... args)
+    template <class Function, class... Args>
+    std::result_of_t<Function(Args...)> sync(Function&& function, Args&&... args)
     {
         // Spin until acquire.
         while (sync_flag.test_and_set())
@@ -47,7 +47,7 @@ public:
 
         try
         {
-            std::result_of_t<TFunction(TArgs...)> result = function(args...);
+            std::result_of_t<Function(Args...)> result = function(args...);
 
             // Release and return on completion.
             sync_flag.clear();
