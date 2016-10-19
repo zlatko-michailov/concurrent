@@ -24,51 +24,28 @@ SOFTWARE.
 
 #pragma once
 
-#include <atomic>
-#include <functional>
+#include <thread>
+#include <chrono>
 
-#include "wait.h"
-
-class lock_free_mutex
+namespace wait
 {
-public:
-    lock_free_mutex()
+    void spin(size_t)
     {
-        // Make sure the flag is clear.
-        sync_flag.clear();
+        std::this_thread::yield();
     }
 
-    template <class Function, class... Args>
-    std::result_of_t<Function(Args...)> sync(Function&& function, Args&&... args)
+    void progressive_sleep(size_t spin_count)
     {
-        return sync2(wait::spin, function, args...);
-    }
-
-    template <class Function, class... Args>
-    std::result_of_t<Function(Args...)> sync2(std::function<void(size_t)> wait, Function&& function, Args&&... args)
-    {
-        // Spin until acquire.
-        for (size_t spin_count = 0; sync_flag.test_and_set(); spin_count++)
+        if ((spin_count == 0) || (spin_count & 0x40ULL) != 0) // do 64 spins between sleeps 
         {
-            wait(spin_count); // no need to try-catch
+            std::this_thread::yield();
         }
-
-        try
+        else
         {
-            std::result_of_t<Function(Args...)> result = function(args...);
+            size_t sleep_milliseconds_power = ((spin_count >>= 6) & 0x03ULL); // use bts 6-8
+            size_t sleep_milliseconds = (1ULL << sleep_milliseconds_power);
 
-            // Release and return on completion.
-            sync_flag.clear();
-            return result;
-        }
-        catch(...)
-        {
-            // Release and rethrow on exception.
-            sync_flag.clear();
-            throw;
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleep_milliseconds));
         }
     }
-
-private:
-    std::atomic_flag sync_flag;
-};
+}

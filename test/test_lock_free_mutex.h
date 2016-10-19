@@ -74,7 +74,7 @@ private:
 
     static bool async_proc(size_t agent_index, bool with_throw)
     {
-        return lock_free_mutex.sync(sync_proc, agent_index, with_throw);
+        return lock_free_mutex.sync2(concurrent::wait::spin, sync_proc, agent_index, with_throw);
     }
 
     static bool sync_proc(size_t agent_index, bool with_throw)
