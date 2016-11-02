@@ -48,4 +48,9 @@ namespace wait
             std::this_thread::sleep_for(std::chrono::milliseconds(sleep_milliseconds));
         }
     }
+
+    void fail(size_t)
+    {
+        throw std::logic_error("Check preconditions before trying this operation.");
+    }
 }

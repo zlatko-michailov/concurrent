@@ -29,6 +29,7 @@ SOFTWARE.
 
 #include "test_lock_free_mutex.h"
 #include "test_thenable_future.h"
+#include "test_ring_buffer.h"
 
 
 struct test
@@ -71,6 +72,10 @@ test_group test_groups[] =
         test(L"constructor", test_thenable_shared_future::test_constructor),
         test(L"start", test_thenable_shared_future::test_start),
         test(L"then", test_thenable_shared_future::test_then),
+    }),
+    test_group(L"ring_buffer",
+    {
+        test(L"vector", test_ring_buffer::test_vector),
     }),
 };
 

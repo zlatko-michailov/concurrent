@@ -45,3 +45,24 @@ SOFTWARE.
     { \
         test_are_equal(a, true); \
     }
+
+#define test_is_false(a) \
+    { \
+        test_are_equal(a, false); \
+    }
+
+#define test_catch(ex_t, stmt) \
+    { \
+        try \
+        { \
+            stmt; \
+            test_fail3(L"Expected exception '", #ex_t, L"' that did not come."); \
+        } \
+        catch (const ex_t&) \
+        { \
+        } \
+        catch (const std::exception& _ex) \
+        { \
+            test_fail4(L"Expected exception '", #ex_t, L"', but got: ", _ex.what()); \
+        } \
+    }

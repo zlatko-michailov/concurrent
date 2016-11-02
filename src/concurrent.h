@@ -29,4 +29,5 @@ namespace concurrent
     #include "wait.h"
     #include "lock_free_mutex.h"
     #include "thenable_future.h"
+    #include "ring_buffer.h"
 }
