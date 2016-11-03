@@ -24,6 +24,8 @@ SOFTWARE.
 
 #pragma once
 
+#include <vector>
+
 #include "../src/concurrent.h"
 #include "test_common.h"
 
@@ -32,7 +34,13 @@ class test_ring_buffer
 public:
     static bool test_vector()
     {
-        concurrent::ring_buffer<int> ring(5, concurrent::wait::fail);
+        concurrent::ring_buffer<std::vector<int>> ring(5, concurrent::wait::fail);
+        return test_container(ring);
+    }
+
+    static bool test_deque()
+    {
+        concurrent::ring_buffer<std::deque<int>> ring(5, concurrent::wait::fail);
         return test_container(ring);
     }
 

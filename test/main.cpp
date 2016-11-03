@@ -76,6 +76,7 @@ test_group test_groups[] =
     test_group(L"ring_buffer",
     {
         test(L"vector", test_ring_buffer::test_vector),
+        test(L"deque", test_ring_buffer::test_deque),
     }),
 };
 

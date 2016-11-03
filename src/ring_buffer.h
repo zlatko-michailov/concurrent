@@ -28,12 +28,12 @@ SOFTWARE.
 #include <stdexcept>
 #include <vector>
 
-template <class Value>
+template <class Container>
 class ring_buffer
 {
 public:
-    ring_buffer(size_t capacity, const std::function<void(size_t)>& wait)
-        : buffer(capacity)
+    ring_buffer(size_t size, const std::function<void(size_t)>& wait)
+        : container(size)
         , wait(wait)
         , virtual_write_index(0)
         , virtual_read_index(0)
@@ -41,7 +41,6 @@ public:
     {
     }
 
-    // Container API 
     size_t size() const
     {
         return ring_size();
@@ -52,17 +51,17 @@ public:
         return virtual_read_index == virtual_write_index; 
     }
 
-    void push_back(const Value& value)
+    void push_back(typename Container::const_reference value)
     {
         wait_until_available(&ring_buffer::available_to_write);
-        buffer[write_index()] = value;
+        container[write_index()] = value;
         virtual_write_index++;
     }
 
-    void push_back(Value&& value)
+    void push_back(typename Container::value_type&& value)
     {
         wait_until_available(&ring_buffer::available_to_write);
-        buffer[write_index()] = value;
+        container[write_index()] = value;
         virtual_write_index++;
     }
 
@@ -77,19 +76,18 @@ public:
         virtual_read_index++;
     }
 
-    Value& front()
+    typename Container::reference front()
     {
         wait_until_available(&ring_buffer::available_to_read);
-        return buffer[read_index()];
+        return container[read_index()];
     }
 
-    const Value& front() const
+    typename Container::const_reference front() const
     {
         wait_until_available(&ring_buffer::available_to_read);
-        return buffer[read_index()];
+        return container[read_index()];
     }
 
-    // Custom API
     bool eof() const
     {
         return eof_flag && empty();
@@ -116,7 +114,7 @@ public:
     }
 
 private:
-    void wait_until_available(const std::function<size_t(const ring_buffer<Value>&)>& available) const
+    void wait_until_available(const std::function<size_t(const ring_buffer<Container>&)>& available) const
     {
         for (size_t spin_count = 0; available(*this) == 0; spin_count++)
         {
@@ -146,11 +144,11 @@ private:
 
     size_t ring_size() const
     {
-        return buffer.size();
+        return container.size();
     }
 
 private:
-    std::vector<Value> buffer;
+    Container container;
     std::function<void(size_t)> wait;
     volatile size_t virtual_write_index;
     volatile size_t virtual_read_index;
