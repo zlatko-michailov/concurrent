@@ -73,10 +73,11 @@ test_group test_groups[] =
         test(L"start", test_thenable_shared_future::test_start),
         test(L"then", test_thenable_shared_future::test_then),
     }),
-    test_group(L"ring_buffer",
+    test_group(L"ring",
     {
-        test(L"vector", test_ring_buffer::test_vector),
-        test(L"deque", test_ring_buffer::test_deque),
+        test(L"vector", test_ring::test_ring_vector),
+        test(L"deque", test_ring::test_ring_deque),
+        test(L"array", test_ring::test_ring_array),
     }),
 };
 

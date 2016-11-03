@@ -24,29 +24,37 @@ SOFTWARE.
 
 #pragma once
 
+#include <array>
+#include <deque>
 #include <vector>
 
 #include "../src/concurrent.h"
 #include "test_common.h"
 
-class test_ring_buffer
+class test_ring
 {
 public:
-    static bool test_vector()
+    static bool test_ring_vector()
     {
-        concurrent::ring_buffer<std::vector<int>> ring(5, concurrent::wait::fail);
-        return test_container(ring);
+        concurrent::ring_vector<int> ring(5, concurrent::wait::fail);
+        return test_ring_container(ring);
     }
 
-    static bool test_deque()
+    static bool test_ring_deque()
     {
-        concurrent::ring_buffer<std::deque<int>> ring(5, concurrent::wait::fail);
-        return test_container(ring);
+        concurrent::ring_deque<int> ring(5, concurrent::wait::fail);
+        return test_ring_container(ring);
+    }
+
+    static bool test_ring_array()
+    {
+        concurrent::ring_array<int, 5> ring(concurrent::wait::fail);
+        return test_ring_container(ring);
     }
 
 private:
-    template <class Value>
-    static bool test_container(concurrent::ring_buffer<Value>& ring)
+    template <class Container>
+    static bool test_ring_container(concurrent::ring<Container>& ring)
     {
         // Thos test assumes ring.size() == 5.
         test_are_equal(5, ring.size());

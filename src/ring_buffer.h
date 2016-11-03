@@ -24,16 +24,27 @@ SOFTWARE.
 
 #pragma once
 
+//#include <array>
+#include <deque>
 #include <functional>
 #include <stdexcept>
 #include <vector>
 
 template <class Container>
-class ring_buffer
+class ring
 {
 public:
-    ring_buffer(size_t size, const std::function<void(size_t)>& wait)
+    ring(size_t size, const std::function<void(size_t)>& wait)
         : container(size)
+        , wait(wait)
+        , virtual_write_index(0)
+        , virtual_read_index(0)
+        , eof_flag(false)
+    {
+    }
+
+    ring(const std::function<void(size_t)>& wait)
+        : container()
         , wait(wait)
         , virtual_write_index(0)
         , virtual_read_index(0)
@@ -53,14 +64,14 @@ public:
 
     void push_back(typename Container::const_reference value)
     {
-        wait_until_available(&ring_buffer::available_to_write);
+        wait_until_available(&ring::available_to_write);
         container[write_index()] = value;
         virtual_write_index++;
     }
 
     void push_back(typename Container::value_type&& value)
     {
-        wait_until_available(&ring_buffer::available_to_write);
+        wait_until_available(&ring::available_to_write);
         container[write_index()] = value;
         virtual_write_index++;
     }
@@ -72,19 +83,19 @@ public:
 
     void pop_front()
     {
-        wait_until_available(&ring_buffer::available_to_read);
+        wait_until_available(&ring::available_to_read);
         virtual_read_index++;
     }
 
     typename Container::reference front()
     {
-        wait_until_available(&ring_buffer::available_to_read);
+        wait_until_available(&ring::available_to_read);
         return container[read_index()];
     }
 
     typename Container::const_reference front() const
     {
-        wait_until_available(&ring_buffer::available_to_read);
+        wait_until_available(&ring::available_to_read);
         return container[read_index()];
     }
 
@@ -114,7 +125,7 @@ public:
     }
 
 private:
-    void wait_until_available(const std::function<size_t(const ring_buffer<Container>&)>& available) const
+    void wait_until_available(const std::function<size_t(const ring<Container>&)>& available) const
     {
         for (size_t spin_count = 0; available(*this) == 0; spin_count++)
         {
@@ -154,3 +165,12 @@ private:
     volatile size_t virtual_read_index;
     volatile bool eof_flag;
 };
+
+template <class T, class Allocator = std::allocator<T>>
+using ring_vector = ring<std::vector<T, Allocator>>; 
+
+template <class T, class Allocator = std::allocator<T>>
+using ring_deque = ring<std::deque<T, Allocator>>; 
+
+template <class T, size_t N>
+using ring_array = ring<std::array<T, N>>; 
