@@ -29,7 +29,7 @@ SOFTWARE.
 
 #include "test_lock_free_mutex.h"
 #include "test_thenable_future.h"
-#include "test_ring_buffer.h"
+#include "test_ring.h"
 
 
 struct test
