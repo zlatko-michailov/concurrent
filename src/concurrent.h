@@ -24,6 +24,16 @@ SOFTWARE.
 
 #pragma once
 
+#include <array>
+#include <atomic>
+#include <chrono>
+#include <deque>
+#include <functional>
+#include <future>
+#include <stdexcept>
+#include <thread>
+#include <vector>
+
 namespace concurrent
 {
     #include "wait.h"

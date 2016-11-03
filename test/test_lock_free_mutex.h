@@ -24,10 +24,6 @@ SOFTWARE.
 
 #pragma once
 
-#include <chrono>
-#include <vector>
-#include <future>
-
 #include "../src/concurrent.h"
 #include "test_common.h"
 

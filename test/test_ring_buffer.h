@@ -24,10 +24,6 @@ SOFTWARE.
 
 #pragma once
 
-#include <array>
-#include <deque>
-#include <vector>
-
 #include "../src/concurrent.h"
 #include "test_common.h"
 

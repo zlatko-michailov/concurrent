@@ -24,9 +24,6 @@ SOFTWARE.
 
 #pragma once
 
-#include <thread>
-#include <chrono>
-
 namespace wait
 {
     void spin(size_t)

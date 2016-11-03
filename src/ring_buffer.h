@@ -24,12 +24,6 @@ SOFTWARE.
 
 #pragma once
 
-//#include <array>
-#include <deque>
-#include <functional>
-#include <stdexcept>
-#include <vector>
-
 template <class Container>
 class ring
 {

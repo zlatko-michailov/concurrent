@@ -24,9 +24,6 @@ SOFTWARE.
 
 #pragma once
 
-#include <atomic>
-#include <functional>
-
 #include "wait.h"
 
 class lock_free_mutex

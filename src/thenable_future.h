@@ -24,9 +24,6 @@ SOFTWARE.
 
 #pragma once
 
-#include <functional>
-#include <future>
-
 template <template <class> class Future, class Value>
 class _thenable_future_base
     : public Future<Value>

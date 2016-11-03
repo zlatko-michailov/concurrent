@@ -24,8 +24,6 @@ SOFTWARE.
 
 #pragma once
 
-#include <thread>
-
 #include "../src/concurrent.h"
 #include "test_common.h"
 
