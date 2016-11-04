@@ -29,7 +29,8 @@ SOFTWARE.
 class lock_free_mutex
 {
 public:
-    lock_free_mutex()
+    lock_free_mutex(std::function<void(size_t)>&& wait)
+        : wait(wait)
     {
         // Make sure the flag is clear.
         sync_flag.clear();
@@ -37,12 +38,6 @@ public:
 
     template <class Function, class... Args>
     std::result_of_t<Function(Args...)> sync(Function&& function, Args&&... args)
-    {
-        return sync2(wait::spin, function, args...);
-    }
-
-    template <class Function, class... Args>
-    std::result_of_t<Function(Args...)> sync2(std::function<void(size_t)> wait, Function&& function, Args&&... args)
     {
         // Spin until acquire.
         for (size_t spin_count = 0; sync_flag.test_and_set(); spin_count++)
@@ -68,4 +63,5 @@ public:
 
 private:
     std::atomic_flag sync_flag;
+    std::function<void(size_t)> wait;
 };

@@ -70,7 +70,7 @@ private:
 
     static bool async_proc(size_t agent_index, bool with_throw)
     {
-        return lock_free_mutex.sync2(concurrent::wait::spin, sync_proc, agent_index, with_throw);
+        return lock_free_mutex.sync(sync_proc, agent_index, with_throw);
     }
 
     static bool sync_proc(size_t agent_index, bool with_throw)
@@ -102,5 +102,5 @@ private:
     static const size_t sleep_milliseconds = 10;
 };
 
-concurrent::lock_free_mutex test_lock_free_mutex::lock_free_mutex;
+concurrent::lock_free_mutex test_lock_free_mutex::lock_free_mutex(&concurrent::wait::spin);
 volatile size_t test_lock_free_mutex::shared_field;
