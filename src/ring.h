@@ -31,8 +31,8 @@ public:
     ring(size_t size, const std::function<void(size_t)>& wait)
         : container(size)
         , wait(wait)
-        , virtual_write_index(0)
-        , virtual_read_index(0)
+        , virtual_push_index(0)
+        , virtual_pop_index(0)
         , eof_flag(false)
     {
     }
@@ -40,8 +40,8 @@ public:
     ring(const std::function<void(size_t)>& wait)
         : container()
         , wait(wait)
-        , virtual_write_index(0)
-        , virtual_read_index(0)
+        , virtual_push_index(0)
+        , virtual_pop_index(0)
         , eof_flag(false)
     {
     }
@@ -53,21 +53,25 @@ public:
 
     bool empty() const
     {
-        return virtual_read_index == virtual_write_index; 
+        return virtual_pop_index == virtual_push_index; 
     }
 
     void push_back(typename Container::const_reference value)
     {
-        wait_until_available(&ring::available_to_write);
-        container[write_index()] = value;
-        virtual_write_index++;
+        if (eof_flag) throw std::logic_error("CONCURRENT_RING_01: Calling push_back() is not allowed after push_back_eof() has been called.");
+
+        wait_until_available(&ring::available_to_push);
+        container[push_index()] = value;
+        virtual_push_index++;
     }
 
     void push_back(typename Container::value_type&& value)
     {
-        wait_until_available(&ring::available_to_write);
-        container[write_index()] = value;
-        virtual_write_index++;
+        if (eof_flag) throw std::logic_error("CONCURRENT_RING_01: Calling push_back() is not allowed after push_back_eof() has been called.");
+
+        wait_until_available(&ring::available_to_push);
+        container[push_index()] = value;
+        virtual_push_index++;
     }
 
     void push_back_eof()
@@ -77,20 +81,20 @@ public:
 
     void pop_front()
     {
-        wait_until_available(&ring::available_to_read);
-        virtual_read_index++;
+        wait_until_available(&ring::available_to_pop);
+        virtual_pop_index++;
     }
 
     typename Container::reference front()
     {
-        wait_until_available(&ring::available_to_read);
-        return container[read_index()];
+        wait_until_available(&ring::available_to_pop);
+        return container[pop_index()];
     }
 
     typename Container::const_reference front() const
     {
-        wait_until_available(&ring::available_to_read);
-        return container[read_index()];
+        wait_until_available(&ring::available_to_pop);
+        return container[pop_index()];
     }
 
     bool eof() const
@@ -98,24 +102,24 @@ public:
         return eof_flag && empty();
     }
 
-    size_t total_write_count() const
+    size_t total_push_count() const
     {
-        return virtual_write_index;
+        return virtual_push_index;
     }
 
-    size_t available_to_write() const
+    size_t available_to_push() const
     {
-        return complement_of(available_to_read());
+        return complement_of(available_to_pop());
     }
 
-    size_t total_read_count() const
+    size_t total_pop_count() const
     {
-        return virtual_read_index;
+        return virtual_pop_index;
     }
 
-    size_t available_to_read() const
+    size_t available_to_pop() const
     {
-        return virtual_write_index - virtual_read_index;
+        return virtual_push_index - virtual_pop_index;
     }
 
 private:
@@ -127,14 +131,14 @@ private:
         }
     }
 
-    size_t write_index() const
+    size_t push_index() const
     {
-        return ring_of(virtual_write_index);
+        return ring_of(virtual_push_index);
     }
 
-    size_t read_index() const
+    size_t pop_index() const
     {
-        return ring_of(virtual_read_index);
+        return ring_of(virtual_pop_index);
     }
 
     size_t ring_of(size_t value) const
@@ -155,8 +159,8 @@ private:
 private:
     Container container;
     std::function<void(size_t)> wait;
-    volatile size_t virtual_write_index;
-    volatile size_t virtual_read_index;
+    volatile size_t virtual_push_index;
+    volatile size_t virtual_pop_index;
     volatile bool eof_flag;
 };
 

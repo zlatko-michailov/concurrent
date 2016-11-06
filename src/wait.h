@@ -48,6 +48,6 @@ namespace wait
 
     void fail(size_t)
     {
-        throw std::logic_error("Check preconditions before trying this operation.");
+        throw std::logic_error("CONCURRENT_WAIT_01: Check preconditions before trying this operation.");
     }
 }

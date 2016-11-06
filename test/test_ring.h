@@ -57,19 +57,19 @@ private:
 
         // Empty.
         test_catch(std::logic_error, ring.front());
-        test_are_equal(ring.available_to_write(), ring.size());
-        test_are_equal(ring.available_to_read(), 0);
-        test_are_equal(ring.total_write_count(), 0);
-        test_are_equal(ring.total_read_count(), 0);
+        test_are_equal(ring.available_to_push(), ring.size());
+        test_are_equal(ring.available_to_pop(), 0);
+        test_are_equal(ring.total_push_count(), 0);
+        test_are_equal(ring.total_pop_count(), 0);
         test_is_false(ring.eof());
 
         // Write 2 items.
         ring.push_back(42);
         ring.push_back(99);
-        test_are_equal(ring.available_to_write(), ring.size() - 2);
-        test_are_equal(ring.available_to_read(), 2);
-        test_are_equal(ring.total_write_count(), 2);
-        test_are_equal(ring.total_read_count(), 0);
+        test_are_equal(ring.available_to_push(), ring.size() - 2);
+        test_are_equal(ring.available_to_pop(), 2);
+        test_are_equal(ring.total_push_count(), 2);
+        test_are_equal(ring.total_pop_count(), 0);
         test_is_false(ring.eof());
 
         // Read 2 items.
@@ -77,10 +77,10 @@ private:
         ring.pop_front();
         test_are_equal(99, ring.front());
         ring.pop_front();
-        test_are_equal(ring.available_to_write(), ring.size());
-        test_are_equal(ring.available_to_read(), 0);
-        test_are_equal(ring.total_write_count(), 2);
-        test_are_equal(ring.total_read_count(), 2);
+        test_are_equal(ring.available_to_push(), ring.size());
+        test_are_equal(ring.available_to_pop(), 0);
+        test_are_equal(ring.total_push_count(), 2);
+        test_are_equal(ring.total_pop_count(), 2);
         test_is_false(ring.eof());
 
         // Write 5 items.
@@ -90,11 +90,12 @@ private:
         ring.push_back(17);
         ring.push_back(13);
         ring.push_back_eof();
-        test_are_equal(ring.available_to_write(), 0);
-        test_are_equal(ring.available_to_read(), ring.size());
-        test_are_equal(ring.total_write_count(), 7);
-        test_are_equal(ring.total_read_count(), 2);
+        test_are_equal(ring.available_to_push(), 0);
+        test_are_equal(ring.available_to_pop(), ring.size());
+        test_are_equal(ring.total_push_count(), 7);
+        test_are_equal(ring.total_pop_count(), 2);
         test_is_false(ring.eof());
+        test_catch(std::logic_error, ring.push_back(99));
         
         // Read 5 items.
         test_are_equal(31, ring.front());
@@ -108,11 +109,12 @@ private:
         test_are_equal(13, ring.front());
         test_is_false(ring.eof());
         ring.pop_front();
-        test_are_equal(ring.available_to_write(), ring.size());
-        test_are_equal(ring.available_to_read(), 0);
-        test_are_equal(ring.total_write_count(), 7);
-        test_are_equal(ring.total_read_count(), 7);
+        test_are_equal(ring.available_to_push(), ring.size());
+        test_are_equal(ring.available_to_pop(), 0);
+        test_are_equal(ring.total_push_count(), 7);
+        test_are_equal(ring.total_pop_count(), 7);
         test_is_true(ring.eof());
+        test_catch(std::logic_error, ring.push_back(99));
         
         return true;
     }    
