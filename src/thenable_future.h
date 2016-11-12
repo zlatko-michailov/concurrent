@@ -68,7 +68,7 @@ public:
                     [this, &function, &args...]() -> std::result_of_t<Function(_thenable_future_base<Future, Value>&&, Args...)>
                     {
                         // Wait for this future to complete.
-                        wait();
+                        this->wait();
 
                         // "Move" this instance to the continuation.
                         return function(std::move(*this), args...);
