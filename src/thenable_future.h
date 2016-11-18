@@ -65,14 +65,14 @@ public:
         return 
             std::move(
                 start(
-                    [this, &function, &args...]() -> std::result_of_t<Function(_thenable_future_base<Future, Value>&&, Args...)>
+                    [&function, &args...](_thenable_future_base<Future, Value> antecedent) -> std::result_of_t<Function(_thenable_future_base<Future, Value>&&, Args...)>
                     {
                         // Wait for this future to complete.
-                        this->wait();
-
+                        antecedent.wait();
+ 
                         // "Move" this instance to the continuation.
-                        return function(std::move(*this), args...);
-                    }));
+                        return function(std::move(antecedent), args...);
+                    }, *this));
     }
 };
 

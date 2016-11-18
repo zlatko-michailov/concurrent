@@ -98,9 +98,12 @@ private:
     static concurrent::lock_free_mutex lock_free_mutex;
     static volatile size_t shared_field;
 
-    static const size_t agent_count = 100;
-    static const size_t sleep_milliseconds = 10;
+    static const size_t agent_count;
+    static const size_t sleep_milliseconds;
 };
 
 concurrent::lock_free_mutex test_lock_free_mutex::lock_free_mutex(&concurrent::wait::spin);
 volatile size_t test_lock_free_mutex::shared_field;
+const size_t test_lock_free_mutex::agent_count = 100;
+const size_t test_lock_free_mutex::sleep_milliseconds = 10;
+
