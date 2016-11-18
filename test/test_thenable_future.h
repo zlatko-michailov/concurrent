@@ -27,13 +27,12 @@ SOFTWARE.
 #include "../src/concurrent.h"
 #include "test_common.h"
 
-template <template <class> class ThenableFuture>
-class test_any_thenable_future
+class test_thenable_future
 {
 public:
     static bool test_constructor()
     {
-        ThenableFuture<int> future = std::async(std::launch::async, []() -> int { return 42; });
+        concurrent::thenable_future<int> future = std::async(std::launch::async, []() -> int { return 42; });
         int actual_value = future.get();
         test_are_equal(actual_value, 42);
         return true;
@@ -41,7 +40,7 @@ public:
 
     static bool test_start()
     {
-        ThenableFuture<int> future = ThenableFuture<int>::start([]() -> int { return 42; });
+        concurrent::thenable_future<int> future = concurrent::thenable_future<int>::start([]() -> int { return 42; });
         int actual_value = future.get();
         test_are_equal(actual_value, 42);
         return true;
@@ -49,18 +48,14 @@ public:
 
     static bool test_then()
     {
-        ThenableFuture<long> future = 
-            ThenableFuture<short>::start([]() -> short { return (short)42; })
-                .then([](ThenableFuture<short>&& antecedent) -> int { return (int)(antecedent.get() + 1); })
-                .then([](ThenableFuture<int>&& antecedent) -> unsigned { return (unsigned)(antecedent.get() + 1); })
-                .then([](ThenableFuture<unsigned>&& antecedent) -> long { return (long)(antecedent.get() + 1); });
+        concurrent::thenable_future<long> future = 
+            concurrent::thenable_future<short>::start([]() -> short { return (short)42; })
+                .then([](concurrent::thenable_future<short>&& antecedent) -> int { return (int)(antecedent.get() + 1); })
+                .then([](concurrent::thenable_future<int>&& antecedent) -> unsigned { return (unsigned)(antecedent.get() + 1); })
+                .then([](concurrent::thenable_future<unsigned>&& antecedent) -> long { return (long)(antecedent.get() + 1); });
 
         long actual_value = future.get();
         test_are_equal(actual_value, 45);
         return true;
     }
 };
-
-typedef test_any_thenable_future<concurrent::thenable_future> test_thenable_future;
-
-typedef test_any_thenable_future<concurrent::thenable_shared_future> test_thenable_shared_future;
