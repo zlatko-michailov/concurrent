@@ -26,18 +26,18 @@ SOFTWARE.
 
 #define test_fail5(m1, m2, m3, m4, m5) \
     { \
-        std::wcout << L"FAIL: " << m1 << m2 << m3 << m4 << m5 << L" (File: " << __FILE__ << L", Line: " << __LINE__ << L")" << std::endl; \
+        std::cout << "FAIL: " << m1 << m2 << m3 << m4 << m5 << " (File: " << __FILE__ << ", Line: " << __LINE__ << ")" << std::endl; \
         return false; \
     }
 
-#define test_fail4(m1, m2, m3, m4) test_fail5((m1), (m2), (m3), (m4), L"")
-#define test_fail3(m1, m2, m3) test_fail4((m1), (m2), (m3), L"")
+#define test_fail4(m1, m2, m3, m4) test_fail5((m1), (m2), (m3), (m4), "")
+#define test_fail3(m1, m2, m3) test_fail4((m1), (m2), (m3), "")
 
 #define test_are_equal(a, b) \
     { \
         if ((a) != (b)) \
         { \
-            test_fail3(a, L" == ", b); \
+            test_fail3(a, " == ", b); \
         } \
     }
 
@@ -56,13 +56,13 @@ SOFTWARE.
         try \
         { \
             stmt; \
-            test_fail3(L"Expected exception '", #ex_t, L"' that did not come."); \
+            test_fail3("Expected exception '", #ex_t, "' that did not come."); \
         } \
         catch (const ex_t&) \
         { \
         } \
         catch (const std::exception& _ex) \
         { \
-            test_fail4(L"Expected exception '", #ex_t, L"', but got: ", _ex.what()); \
+            test_fail4("Expected exception '", #ex_t, "', but got: ", _ex.what()); \
         } \
     }

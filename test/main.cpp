@@ -34,10 +34,10 @@ SOFTWARE.
 
 struct test
 {
-    const wchar_t* name;
+    const char* name;
     const std::function<bool()> function;
 
-    test(const wchar_t* test_name, const std::function<bool()>& test_function)
+    test(const char* test_name, const std::function<bool()>& test_function)
         : name(test_name), function(test_function)
     {
     }
@@ -45,10 +45,10 @@ struct test
 
 struct test_group
 {
-    const wchar_t* name;
+    const char* name;
     const std::deque<test> tests;
 
-    test_group(const wchar_t* test_group_name, const std::initializer_list<test>& test_group_tests)
+    test_group(const char* test_group_name, const std::initializer_list<test>& test_group_tests)
         : name(test_group_name), tests(test_group_tests)
     {
     }
@@ -56,56 +56,56 @@ struct test_group
 
 test_group test_groups[] =
 {
-    test_group(L"lock_free_mutex",
+    test_group("lock_free_mutex",
     {
-        test(L"sync(complete)", test_lock_free_mutex::test_sync_complete),
-        test(L"sync(throw)", test_lock_free_mutex::test_sync_throw),
+        test("sync(complete)", test_lock_free_mutex::test_sync_complete),
+        test("sync(throw)", test_lock_free_mutex::test_sync_throw),
     }),
-    test_group(L"thenable_future",
+    test_group("thenable_future",
     {
-        test(L"constructor", test_thenable_future::test_constructor),
-        test(L"start", test_thenable_future::test_start),
-        test(L"then", test_thenable_future::test_then),
+        test("constructor", test_thenable_future::test_constructor),
+        test("start", test_thenable_future::test_start),
+        test("then", test_thenable_future::test_then),
     }),
-    test_group(L"ring",
+    test_group("ring",
     {
-        test(L"vector", test_ring::test_ring_vector),
-        test(L"deque", test_ring::test_ring_deque),
-        test(L"array", test_ring::test_ring_array),
+        test("vector", test_ring::test_ring_vector),
+        test("deque", test_ring::test_ring_deque),
+        test("array", test_ring::test_ring_array),
     }),
 };
 
 int main()
 {
-    const wchar_t* section_separator = L"------------------------------------------------------------------------";
+    const char* section_separator = "------------------------------------------------------------------------";
 
-    std::wcout << std::endl;
-    std::wcout << section_separator << std::endl;
-    std::wcout << L"TESTING..." << std::endl;
+    std::cout << std::endl;
+    std::cout << section_separator << std::endl;
+    std::cout << "TESTING..." << std::endl;
 
     bool pass = true;
     for (test_group test_group : test_groups)
     {
         bool group_pass = true;
 
-        std::wcout << section_separator << std::endl;
-        std::wcout << test_group.name << std::endl;
+        std::cout << section_separator << std::endl;
+        std::cout << test_group.name << std::endl;
 
         for (test test : test_group.tests)
         {
-            std::wcout << L"\t" << test_group.name << L"::" << test.name << std::endl;
+            std::cout << "\t" << test_group.name << "::" << test.name << std::endl;
             bool test_pass = test.function();
             group_pass = (group_pass && test_pass);
             pass = (pass && test_pass);
-            std::wcout << L"\t" << (test_pass ? L"Pass" : L"FAIL") << std::endl;
+            std::cout << "\t" << (test_pass ? "Pass" : "FAIL") << std::endl;
         }
 
-        std::wcout << (group_pass ? L"Pass" : L"FAIL") << std::endl;
+        std::cout << (group_pass ? "Pass" : "FAIL") << std::endl;
     }
 
-    std::wcout << section_separator << std::endl;
-    std::wcout << (pass ? L"PASS" : L"FAIL") << std::endl;
-    std::wcout << section_separator << std::endl;
+    std::cout << section_separator << std::endl;
+    std::cout << (pass ? "PASS" : "FAIL") << std::endl;
+    std::cout << section_separator << std::endl;
 
     return (pass ? 0 : 1);
 }
