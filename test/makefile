@@ -20,52 +20,65 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+ostype = $(OSTYPE)$(OS)
 
-all: init_$(OSTYPE) clean build test pack
+all: pack
 
-init_linux:
-dir_out = $(CURDIR)/../out
-#dir_obj = $(dir_out)/obj
-dir_pack = $(dir_out)/include
-dir_src = $(CURDIR)
-dir_include = $(CURDIR)/../src
-exe_test = $(dir_out)/test
-file_h = $(dir_include)/*.h
-file_cpp = $(dir_src)/*.cpp
-cmd_rmdir = rm -fdr
-cmd_mkdir = mkdir
-cmd_copy = cp
-cmd_cc = g++ -std=c++14 -Wpedantic -Wl,-l:libstdc++.so.6 -Wl,-l:libgcc_s.so.1 -Wl,-l:libpthread.so -o
 
-init_: #windows
-dir_out = $(MAKEDIR)\..\out
-dir_obj = $(dir_out)\obj
-dir_pack = $(dir_out)\include
-dir_src = $(MAKEDIR)
-dir_include = $(MAKEDIR)\..\src
-exe_test = $(dir_out)\test.exe
-file_h = $(dir_include)\*.h
-file_cpp = $(dir_src)\*.cpp
-cmd_rmdir = rmdir /s /q
-cmd_mkdir = mkdir
-cmd_copy = xcopy /y /i
-cmd_cc = cl -W4 -EHs -Od -D:DEBUG -Fo:$(dir_obj) -Fe:
+# --------------------------------------------------------------------
+# pack
 
-clean:
-	$(cmd_rmdir) $(dir_out)
-	$(cmd_mkdir) $(dir_out)
-	$(cmd_mkdir) $(dir_obj)
-	$(cmd_mkdir) $(dir_pack)
+pack: test pack_$(ostype)
 
-pack: test
-	$(cmd_copy) $(file_h) $(dir_pack)
+pack_linux:
+	cp $(CURDIR)/../src/*.h $(CURDIR)/../out/include
 
-test: build
-	$(exe_test)
+pack_Windows_NT:
+	xcopy /y /i $(MAKEDIR)\..\src\*.h $(MAKEDIR)\..\out\include
 
-build: clean $(exe_test)
 
-$(exe_test):
-	$(cmd_cc) $(exe_test) $(file_cpp)
+# --------------------------------------------------------------------
+# test
 
+test: build test_$(ostype)
+
+test_linux:
+	$(CURDIR)/../out/test
+
+test_windows_NT:
+	$(MAKEDIR)\..\out\test.exe
+
+
+# --------------------------------------------------------------------
+# build
+
+build: clean build_$(ostype)
+
+build_linux: $(CURDIR)/../out/test
+
+build_Windows_NT: $(MAKEDIR)\..\out\test.exe
+
+$(CURDIR)/../out/test:
+	g++ -std=c++14 -Wpedantic -Wl,-l:libstdc++.so.6 -Wl,-l:libgcc_s.so.1 -Wl,-l:libpthread.so -o $(CURDIR)/../out/test $(CURDIR)/*.cpp
+
+$(MAKEDIR)\..\out\test.exe:
+	cl -W4 -EHs -Od -D:DEBUG -Fo:$(MAKEDIR)\..\out\obj\ -Fe:$(MAKEDIR)\..\out\test.exe $(MAKEDIR)\*.cpp
+
+
+# --------------------------------------------------------------------
+# clean
+
+clean: clean_$(ostype)
+
+clean_linux:
+	rm -fdr $(CURDIR)/../out
+	mkdir $(CURDIR)/../out
+	mkdir $(CURDIR)/../out/obj
+	mkdir $(CURDIR)/../out/include
+
+clean_Windows_NT:
+	rmdir /s /q $(MAKEDIR)\..\out
+	mkdir $(MAKEDIR)\..\out
+	mkdir $(MAKEDIR)\..\out\obj
+	mkdir $(MAKEDIR)\..\out\include
 
