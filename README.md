@@ -38,12 +38,12 @@ It requires that Visual Studio is installed in the default location.
 If you are using VS Code (and you have Visual Studio installed in the default location),
 you can build and run the tests by simply pressing __Ctrl+Shift+B__.
 
-If you have a different C++ package that includes `nmake`, you can:
+On POSIX systems with GNU `make` and `g++` in the system `PATH`, you can:
 ```cmd
 pushd <path>\test
-nmake makefile-win
+make all
 ```
 
-Soon, there will be a GNU make file for POSIX systems.
+
 
 
